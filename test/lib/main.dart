@@ -55,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool is_counting = false;
 
+late  Timer _timer;
+
   
 
  void _start()
@@ -62,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
    is_counting = true;
    seconds_t = time.toInt() * 3600;
    
-    Timer.periodic(Duration(seconds: 1), (timer){
+     _timer =Timer.periodic(Duration(seconds: 1), (timer){
 
       setState(() {
         if(seconds_t>0)
@@ -78,6 +80,20 @@ class _MyHomePageState extends State<MyHomePage> {
         
       });
     });
+ }
+
+ void _stop()
+ {
+   is_counting = false;
+  setState(() => _timer.cancel()
+    
+  );
+
+   print(is_counting);
+   
+   
+
+   
  }
 
  String formatHHMMSS(int seconds) {
@@ -149,10 +165,14 @@ class _MyHomePageState extends State<MyHomePage> {
               divisions: 11,
               label: '$time',
 ),
-          MaterialButton(onPressed: _start,
+         !is_counting ? MaterialButton(onPressed: _start,
           child: 
           Text("START"),
-          )
+          ) : 
+          MaterialButton(onPressed: _stop,
+          child: 
+          Text("STOP"),
+          ) 
           ],
         ),
       ),
