@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Czas pracy'),
     );
   }
 }
@@ -49,20 +51,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  
+//main timer values
   double time = 1.0;
   int seconds_t = 0;
 
   bool is_counting = false;
+  
 
 late  Timer _timer;
+
+//break values
+late Timer _break_timer;
+bool is_break = false;
+double break_time = 5.0;
+int brek_secons = 0; 
 
   
 
  void _start()
  {  
+    if(!is_counting)
+    {
+      seconds_t = time.toInt() * 3600;
+    }
+    
    is_counting = true;
-   seconds_t = time.toInt() * 3600;
+   
+   
    
      _timer =Timer.periodic(Duration(seconds: 1), (timer){
 
@@ -85,16 +101,50 @@ late  Timer _timer;
  void _stop()
  {
    is_counting = false;
+  seconds_t = 0;
   setState(() => _timer.cancel()
     
   );
-
-   print(is_counting);
-   
-   
+  
 
    
  }
+
+ void _przerwa()
+{
+  is_break = true;
+  setState(() => _timer.cancel()
+    
+  );
+  brek_secons = break_time.toInt();
+  _break_timer = Timer.periodic(Duration(seconds: 1), (timer){
+
+      setState(() {
+        if(brek_secons>0)
+        {
+          brek_secons= brek_secons-1;
+
+        }
+        else
+        {
+          timer.cancel();
+         
+          _start();
+        }
+        
+      });
+    });
+
+}
+Widget display_time(int seconds)
+{
+    return Text(
+              
+              formatHHMMSS(seconds),
+              style: Theme.of(context).textTheme.headline4,
+            );
+}
+
 
  String formatHHMMSS(int seconds) {
   int hours = (seconds / 3600).truncate();
@@ -121,39 +171,18 @@ late  Timer _timer;
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+       
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
+        
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              
-              formatHHMMSS(seconds_t),
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          if(!is_counting)
+            
+            display_time(seconds_t),
+          !is_counting ?
             Slider(
                value: time,
   
@@ -164,20 +193,49 @@ late  Timer _timer;
               max: 12,
               divisions: 11,
               label: '$time',
-),
-         !is_counting ? MaterialButton(onPressed: _start,
+) :SizedBox.shrink(),
+          
+          if(!is_counting) ...[
+          MaterialButton(onPressed: _start,
           child: 
-          Text("START"),
-          ) : 
+          const Text("START"),
+          )
+           ]
+          else ...[
           MaterialButton(onPressed: _stop,
           child: 
           Text("STOP"),
-          ) 
+          ), Text(
+            "Wybierz długość przerwy"
+          ),
+          
+           Slider(
+               value: break_time,
+  
+               onChanged: (newValue) => {
+             setState(() => break_time = newValue)
+  },
+              min: 5,
+              max: 45,
+              divisions: 8,
+              label: '$break_time',
+),
+          MaterialButton(onPressed: _przerwa,
+          child: 
+          Text("PRZERWA")
+          )
           ],
+        
+          
+          ],
+
+          
         ),
       ),
       
     );
   }
+  
+
   
 }
