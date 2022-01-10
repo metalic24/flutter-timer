@@ -1,7 +1,13 @@
 
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
+
+
 
 void main() {
   runApp(const MyApp());
@@ -79,6 +85,13 @@ int brek_seconds = 300;
         {
           timer.cancel();
           is_counting = false;
+          Navigator.push(
+           context,
+         MaterialPageRoute(builder: (context) => Alarm()),
+  );
+
+         
+         
         }
         
       });
@@ -113,16 +126,31 @@ int brek_seconds = 300;
         }
         else
         {
+          
           timer.cancel();
+
+          Navigator.push(
+           context,
+         MaterialPageRoute(builder: (context) => Alarm()),
+  );
          
           _start();
+
+          
           is_break = false;
+          
           //TODO wiget 
         }
         
       });
     });
 
+}
+void _end_break()
+{
+  is_break = false;
+  _start();
+  _break_timer.cancel();
 }
 Widget display_time(int seconds)
 {
@@ -239,6 +267,12 @@ Widget display_time(int seconds)
               "Pozostały czas przerwy:"
             ),
             display_time(brek_seconds),
+
+            MaterialButton(onPressed: _end_break,
+
+            child: Text("Zakończ przerwę i wróć do roboty"),
+            
+            )
            
           ]
           
@@ -255,3 +289,47 @@ Widget display_time(int seconds)
 
   
 }
+
+
+
+class  Alarm extends StatelessWidget {
+  Alarm({ Key? key }) : super(key: key);
+
+AudioPlayer player = AudioPlayer();
+Future<void> play_music()
+async {
+   String audioasset = "assets/end_work.mp3";
+  ByteData bytes = await rootBundle.load(audioasset); //load sound from assets
+   Uint8List  soundbytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+  int result = await player.playBytes(soundbytes);
+                             
+}
+ 
+
+
+  @override
+  Widget build(BuildContext context) {
+ 
+    play_music();
+   return Scaffold(
+     
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            Navigator.pop(context, true);
+            int result = await player.stop();
+          },
+          child: const Text('Go back!'),
+        ),
+      ),
+    );
+    
+    
+  }
+
+
+
+  
+  
+}
+
