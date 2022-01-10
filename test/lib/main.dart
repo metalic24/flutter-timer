@@ -118,7 +118,7 @@ int brek_seconds = 300;
   brek_seconds = break_time.toInt();
   _break_timer = Timer.periodic(Duration(seconds: 1), (timer){
 
-      setState(() {
+      setState(()  {
         if(brek_seconds>0)
         {
           brek_seconds= brek_seconds-1;
@@ -128,18 +128,19 @@ int brek_seconds = 300;
         {
           
           timer.cancel();
-
-          Navigator.push(
+ 
+    Navigator.push(
            context,
-         MaterialPageRoute(builder: (context) => Alarm()),
-  );
-         
-          _start();
+         MaterialPageRoute(builder: (context) => Break_Alarm()),
+  ).then((value) {
+
+  _start();
 
           
-          is_break = false;
-          
-          //TODO wiget 
+  is_break = false;
+  });
+  
+
         }
         
       });
@@ -227,13 +228,27 @@ Widget display_time(int seconds)
 ) ],
           
           if(!is_counting) ...[
-          MaterialButton(onPressed: _start,
+          MaterialButton(
+            shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                    side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1))),
+                     padding: EdgeInsets.all(10.0),
+                color: Colors.white,
+                textColor: Color.fromRGBO(0, 160, 227, 1),
+            onPressed: _start,
           child: 
           const Text("START"),
           )
            ]
           else if(!is_break)...[
-          MaterialButton(onPressed: _stop,
+          MaterialButton(
+            shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                    side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1))),
+                     padding: EdgeInsets.all(10.0),
+                color: Colors.white,
+                textColor: Color.fromRGBO(0, 160, 227, 1),
+            onPressed: _stop,
           child: 
           Text("Całkowity koniec!!!"),
           ),
@@ -254,7 +269,14 @@ Widget display_time(int seconds)
               label: '$break_time',
 ),
 
-          MaterialButton(onPressed: _przerwa,
+          MaterialButton(
+            shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                    side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1))),
+                     padding: EdgeInsets.all(10.0),
+                color: Colors.white,
+                textColor: Color.fromRGBO(0, 160, 227, 1),
+            onPressed: _przerwa,
           child: 
           const Text("PRZERWA")
           )
@@ -268,7 +290,14 @@ Widget display_time(int seconds)
             ),
             display_time(brek_seconds),
 
-            MaterialButton(onPressed: _end_break,
+            MaterialButton(
+              shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                    side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1))),
+                     padding: EdgeInsets.all(10.0),
+                color: Colors.white,
+                textColor: Color.fromRGBO(0, 160, 227, 1),
+              onPressed: _end_break,
 
             child: Text("Zakończ przerwę i wróć do roboty"),
             
@@ -314,12 +343,32 @@ async {
    return Scaffold(
      
       body: Center(
-        child: ElevatedButton(
+        child: Container(
+          
+          child: Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+
+          Text("Na dzisiaj wystarczy"),
+
+           ElevatedButton(
+
+             
           onPressed: () async {
             Navigator.pop(context, true);
             int result = await player.stop();
           },
-          child: const Text('Go back!'),
+          child: const Text('Koniec pracy'),
+        ),
+        
+
+
+
+
+          ]),
+          
+          
+        
         ),
       ),
     );
@@ -333,3 +382,63 @@ async {
   
 }
 
+
+class  Break_Alarm extends StatelessWidget {
+  Break_Alarm({ Key? key }) : super(key: key);
+
+AudioPlayer player = AudioPlayer();
+Future<void> play_music()
+async {
+   String audioasset = "assets/alarm.mp3";
+  ByteData bytes = await rootBundle.load(audioasset); //load sound from assets
+   Uint8List  soundbytes = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+  int result = await player.playBytes(soundbytes);
+                             
+}
+ 
+
+
+  @override
+  Widget build(BuildContext context) {
+ 
+    play_music();
+   return Scaffold(
+     
+      body: Center(
+        child: Container(
+          
+          child: Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+
+          Text("ALARM"),
+
+           ElevatedButton(
+          onPressed: () async {
+            Navigator.pop(context, true);
+            int result = await player.stop();
+          },
+          child: const Text('Koniec przerwy'),
+        ),
+        
+
+
+
+
+          ]),
+          
+          
+        
+        ),
+        
+        
+         
+        
+      ),
+    );
+    
+    
+  }
+
+  
+}
