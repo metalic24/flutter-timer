@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 void main() {
   runApp(const MyApp());
 }
-
+//główny ekran
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -42,10 +42,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   
+//test values: do lepszego testowania polecam zmkienić na 0
+  int to_mins = 60;
+int to_hours = 3600;
+
+
+
+
 //main timer values
   double time = 1.0;
   int seconds_t = 3600;
-
+  
   bool is_counting = false;
   
 
@@ -55,26 +62,28 @@ late  Timer _timer;
 late Timer _break_timer;
 bool is_break = false;
 double break_time = 5.0;
+
 int brek_seconds = 300; 
 
 
   
   // TODO  *3600 aby działało na godzinach
 
+//startuje czas głównegi timera
  void _start()
  {  
+  
    if(!is_counting)
     {
-      seconds_t = time.toInt() ;
+      seconds_t = time.toInt() * to_hours ;
     }
     
     
    is_counting = true;
    
    
-   
+   //start timera
      _timer =Timer.periodic(Duration(seconds: 1), (timer){
-
       setState(() {
         if(seconds_t>0)
         {
@@ -83,6 +92,7 @@ int brek_seconds = 300;
         }
         else
         {
+          //jesli czas się skończy, to uruchamia alarm
           timer.cancel();
           is_counting = false;
           Navigator.push(
@@ -98,6 +108,8 @@ int brek_seconds = 300;
     });
  }
 
+ //zatrzymanie głównego timera
+
  void _stop()
  {
    is_counting = false;
@@ -109,13 +121,15 @@ int brek_seconds = 300;
 
    
  }
+ //zaczyna przerwę 
 
  void _przerwa()
 {
   is_break = true;
   setState(() => _timer.cancel()
   );
-  brek_seconds = break_time.toInt();
+  brek_seconds = break_time.toInt() * to_mins;
+  //uruchomienie timera przerwy
   _break_timer = Timer.periodic(Duration(seconds: 1), (timer){
 
       setState(()  {
@@ -128,7 +142,7 @@ int brek_seconds = 300;
         {
           
           timer.cancel();
- 
+ //otworzenie alarmu przerwy
     Navigator.push(
            context,
          MaterialPageRoute(builder: (context) => Break_Alarm()),
@@ -147,12 +161,14 @@ int brek_seconds = 300;
     });
 
 }
+//zakończenie przerwy przed upływem czasu
 void _end_break()
 {
   is_break = false;
   _start();
   _break_timer.cancel();
 }
+//wyświetla czas, nie wiem dlacego tak zrobiłem, ale działa 
 Widget display_time(int seconds)
 {
     return Text(
@@ -162,7 +178,7 @@ Widget display_time(int seconds)
             );
 }
 
-
+//zamienia format
  String formatHHMMSS(int seconds) {
   int hours = (seconds / 3600).truncate();
   seconds = (seconds % 3600).truncate();
@@ -187,6 +203,7 @@ Widget display_time(int seconds)
       ),
       body: Center(
         child: Container(
+          //styl gradient
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topRight,
@@ -204,7 +221,7 @@ Widget display_time(int seconds)
         child: Column(
           
           
-        
+        //wyśrodkowanie elementów na stronie
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             
@@ -218,7 +235,7 @@ Widget display_time(int seconds)
              setState(() => time = newValue),
              if(!is_counting)
               {
-                seconds_t = time.toInt() 
+                seconds_t = time.toInt() * to_hours
                 }
   },
               min: 1,
@@ -254,7 +271,14 @@ Widget display_time(int seconds)
           ),
          
            Text(
-            "Wybierz długość przerwy"
+            "Wybierz długość przerwy",
+            style: TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: Colors.blue[700]
+    ),
+
+    
           ),
           
            Slider(
@@ -286,7 +310,12 @@ Widget display_time(int seconds)
          if(is_break)
           ...[
             Text(
-              "Pozostały czas przerwy:"
+              "Pozostały czas przerwy:",
+              style: TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: Colors.blue[700]
+    ),
             ),
             display_time(brek_seconds),
 
@@ -320,11 +349,14 @@ Widget display_time(int seconds)
 }
 
 
+//wiget alamu po zakończeniu pracy
 
 class  Alarm extends StatelessWidget {
   Alarm({ Key? key }) : super(key: key);
 
 AudioPlayer player = AudioPlayer();
+
+//funkcja grająca muzykę
 Future<void> play_music()
 async {
    String audioasset = "assets/end_work.mp3";
@@ -334,7 +366,6 @@ async {
                              
 }
  
-
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +380,11 @@ async {
              mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
-          Text("Na dzisiaj wystarczy"),
+          Text("Na dzisiaj wystarczy",
+          style: TextStyle(
+    fontSize: 40,
+    fontWeight: FontWeight.bold),
+          ),
 
            ElevatedButton(
 
@@ -382,7 +417,7 @@ async {
   
 }
 
-
+//wiget alarmu przerwy
 class  Break_Alarm extends StatelessWidget {
   Break_Alarm({ Key? key }) : super(key: key);
 
@@ -411,7 +446,11 @@ async {
              mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
-          Text("ALARM"),
+          Text("ALARM",
+          style: TextStyle(
+    fontSize: 40,
+    fontWeight: FontWeight.bold),
+          ),
 
            ElevatedButton(
           onPressed: () async {
